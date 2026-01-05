@@ -76,8 +76,7 @@ export default function Home() {
         {todos.map((todo) => (
           <li
             key={todo.id}
-            className={`${styles.todo} ${todo.completed ? styles.completed : ''
-              }`}
+            className={`${styles.todo} ${todo.completed ? styles.completed : ''}`}
           >
             {editingId === todo.id ? (
               <input
