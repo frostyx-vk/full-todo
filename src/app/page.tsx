@@ -27,6 +27,7 @@ export default function Home() {
       { id: Date.now(), text: input, completed: false },
     ]);
     setInput('');
+    
   };
 
   const toggleTodo = (id: number) => {
