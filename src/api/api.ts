@@ -3,15 +3,23 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const api = createApi({
     reducerPath: 'api',
     baseQuery: fetchBaseQuery({
-        baseUrl: '', 
+        baseUrl: 'http://localhost:4000',
     }),
-    // tagTypes: ['User', 'Post'],
+    tagTypes: ['Todos'],
     endpoints: (builder) => ({
-        getUsers: builder.query<any[], void>({
-            query: () => '/api/users',
-            // providesTags: ['User'],
+        getTodos: builder.query<any[], void>({
+            query: () => '/api/todos',
+            providesTags: ['Todos'],
+        }),
+        postTodos: builder.mutation<any, { text: string }>({
+            query: (body) => ({
+                url: '/api/todos',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['Todos'],
         }),
     }),
 });
 
-export const { useGetUsersQuery } = api;
+export const { useGetTodosQuery, usePostTodosMutation } = api;

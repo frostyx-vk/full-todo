@@ -1,11 +1,7 @@
 'use client';
-import { useGetUsersQuery } from './../api/api';
+import { useGetTodosQuery, usePostTodosMutation } from './../api/api';
 import { useState } from 'react';
 import styles from './page.module.css';
-
-// const { data, error, isLoading } = useGetUsersQuery();
-// if (isLoading) return <p>Loading...</p>;
-// if (error) return <p>Error</p>;
 
 type Todo = {
   id: number;
@@ -19,15 +15,18 @@ export default function Home() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState('');
 
-  const addTodo = () => {
+  const { data, error, isLoading } = useGetTodosQuery();
+  const [postTodos] = usePostTodosMutation();
+
+  const addTodo = async () => {
     if (!input.trim()) return;
 
-    setTodos((prev) => [
-      ...prev,
-      { id: Date.now(), text: input, completed: false },
-    ]);
-    setInput('');
-    
+    try {
+      await postTodos({ text: input }).unwrap(); // unwrap выбрасывает ошибку если не 2xx
+      setInput('');
+    } catch (err) {
+      console.error('Ошибка при добавлении todo:', err);
+    }
   };
 
   const toggleTodo = (id: number) => {
@@ -57,6 +56,9 @@ export default function Home() {
     setEditingText('');
   };
 
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error</p>;
+
   return (
     <main className={styles.container}>
       <h1 className={styles.title}>📝 Todo List</h1>
@@ -74,7 +76,7 @@ export default function Home() {
       </div>
 
       <ul className={styles.list}>
-        {todos.map((todo) => (
+        {Array.isArray(data) && data.length > 0 && data.map((todo) => (
           <li
             key={todo.id}
             className={`${styles.todo} ${todo.completed ? styles.completed : ''}`}
