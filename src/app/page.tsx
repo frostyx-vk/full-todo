@@ -68,6 +68,7 @@ export default function Home() {
           className={styles.input}
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => { e.key === 'Enter' && addTodo() }}
           placeholder='Добавить...'
         />
         <button className={styles.addButton} onClick={addTodo}>
