@@ -1,95 +1,128 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+import { useGetUsersQuery } from './../api/api';
+import { useState } from 'react';
+import styles from './page.module.css';
+
+// const { data, error, isLoading } = useGetUsersQuery();
+// if (isLoading) return <p>Loading...</p>;
+// if (error) return <p>Error</p>;
+
+type Todo = {
+  id: number;
+  text: string;
+  completed: boolean;
+};
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [input, setInput] = useState('');
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingText, setEditingText] = useState('');
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const addTodo = () => {
+    if (!input.trim()) return;
+
+    setTodos((prev) => [
+      ...prev,
+      { id: Date.now(), text: input, completed: false },
+    ]);
+    setInput('');
+  };
+
+  const toggleTodo = (id: number) => {
+    setTodos((prev) =>
+      prev.map((t) =>
+        t.id === id ? { ...t, completed: !t.completed } : t
+      )
+    );
+  };
+
+  const deleteTodo = (id: number) => {
+    setTodos((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const startEdit = (todo: Todo) => {
+    setEditingId(todo.id);
+    setEditingText(todo.text);
+  };
+
+  const saveEdit = (id: number) => {
+    setTodos((prev) =>
+      prev.map((t) =>
+        t.id === id ? { ...t, text: editingText } : t
+      )
+    );
+    setEditingId(null);
+    setEditingText('');
+  };
+
+  return (
+    <main className={styles.container}>
+      <h1 className={styles.title}>📝 Todo List</h1>
+
+      <div className={styles.addBlock}>
+        <input
+          className={styles.input}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder='Добавить...'
+        />
+        <button className={styles.addButton} onClick={addTodo}>
+          Добавить
+        </button>
+      </div>
+
+      <ul className={styles.list}>
+        {todos.map((todo) => (
+          <li
+            key={todo.id}
+            className={`${styles.todo} ${todo.completed ? styles.completed : ''
+              }`}
           >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+            {editingId === todo.id ? (
+              <input
+                className={styles.editInput}
+                value={editingText}
+                onChange={(e) => setEditingText(e.target.value)}
+              />
+            ) : (
+              <span className={styles.text}>{todo.text}</span>
+            )}
+
+            <div className={styles.actions}>
+              <button
+                className={styles.actionButton}
+                onClick={() => toggleTodo(todo.id)}
+              >
+                ✅
+              </button>
+
+              {editingId === todo.id ? (
+                <button
+                  className={styles.actionButton}
+                  onClick={() => saveEdit(todo.id)}
+                >
+                  💾
+                </button>
+              ) : (
+                <button
+                  className={styles.actionButton}
+                  onClick={() => startEdit(todo)}
+                >
+                  ✏️
+                </button>
+              )}
+
+              <button
+                className={styles.deleteButton}
+                onClick={() => deleteTodo(todo.id)}
+              >
+                🗑
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </main>
   );
 }
