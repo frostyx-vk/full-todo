@@ -1,5 +1,5 @@
 'use client';
-import { useGetTodosQuery, usePostTodosMutation, useDeleteTodoMutation, useChangeTodoMutation } from './../api/api';
+import { useGetTodosQuery, usePostTodosMutation, useDeleteTodoMutation, useChangeTodoMutation } from '../api/api';
 import { useState } from 'react';
 import styles from './page.module.css';
 
