@@ -1,5 +1,5 @@
 'use client';
-import { useGetTodosQuery, usePostTodosMutation } from './../api/api';
+import { useGetTodosQuery, usePostTodosMutation, useDeleteTodoMutation } from './../api/api';
 import { useState } from 'react';
 import styles from './page.module.css';
 
@@ -17,17 +17,8 @@ export default function Home() {
 
   const { data, error, isLoading } = useGetTodosQuery();
   const [postTodos] = usePostTodosMutation();
+  const [deleteTodo] = useDeleteTodoMutation();
 
-  const addTodo = async () => {
-    if (!input.trim()) return;
-
-    try {
-      await postTodos({ text: input }).unwrap(); // unwrap выбрасывает ошибку если не 2xx
-      setInput('');
-    } catch (err) {
-      console.error('Ошибка при добавлении todo:', err);
-    }
-  };
 
   const toggleTodo = (id: number) => {
     setTodos((prev) =>
@@ -37,8 +28,22 @@ export default function Home() {
     );
   };
 
-  const deleteTodo = (id: number) => {
-    setTodos((prev) => prev.filter((t) => t.id !== id));
+  const addTodo = async () => {
+    if (!input.trim()) return;
+    try {
+      await postTodos({ text: input }).unwrap(); // unwrap выбрасывает ошибку если не 2xx
+      setInput('');
+    } catch (err) {
+      console.error('Ошибка при добавлении todo:', err);
+    }
+  };
+
+  const deleteTodos = async (id: number) => {
+    try {
+      await deleteTodo({ id }).unwrap(); // unwrap выбрасывает ошибку если не 2xx
+    } catch (err) {
+      console.error('Ошибка при добавлении todo:', err);
+    }
   };
 
   const startEdit = (todo: Todo) => {
@@ -118,7 +123,7 @@ export default function Home() {
 
               <button
                 className={styles.deleteButton}
-                onClick={() => deleteTodo(todo.id)}
+                onClick={() => deleteTodos(todo.id)}
               >
                 🗑
               </button>
