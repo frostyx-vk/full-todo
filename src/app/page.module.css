@@ -103,3 +103,9 @@
 .deleteButton:hover {
   transform: scale(1.1);
 }
+
+.mistakes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

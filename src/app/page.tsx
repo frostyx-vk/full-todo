@@ -31,7 +31,7 @@ export default function Home() {
 
   const deleteTodos = async (id: number) => {
     try {
-      await deleteTodo({ id }).unwrap(); // unwrap выбрасывает ошибку если не 2xx
+      await deleteTodo({ id }).unwrap();
     } catch (err) {
       console.error('Ошибка при добавлении todo:', err);
     }
@@ -73,8 +73,8 @@ export default function Home() {
     setEditingText('');
   };
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error</p>;
+  if (isLoading) return <main className={`${styles.container} ${styles.mistakes}`}><p>Loading...</p> </main>;
+  if (error) return <main className={`${styles.container} ${styles.mistakes}`}><p>Error</p> </main>;
 
   return (
     <main className={styles.container}>
