@@ -20,13 +20,21 @@ export const api = createApi({
             invalidatesTags: ['Todos'],
         }),
         deleteTodo: builder.mutation<any, { id: number }>({
-            query: (body) => ({
-                url: `/api/todos/${body.id}`,
+            query: ({ id }) => ({
+                url: `/api/todos/${id}`,
                 method: 'DELETE',
+            }),
+            invalidatesTags: ['Todos'],
+        }),
+        changeTodo: builder.mutation<any, { id: number; text?: string; completed?: boolean }>({
+            query: ({ id, ...body }) => ({
+                url: `/api/todos/${id}`,
+                method: 'PATCH',
+                body,
             }),
             invalidatesTags: ['Todos'],
         }),
     }),
 });
 
-export const { useGetTodosQuery, usePostTodosMutation, useDeleteTodoMutation } = api;
+export const { useGetTodosQuery, usePostTodosMutation, useDeleteTodoMutation, useChangeTodoMutation } = api;

@@ -1,5 +1,5 @@
 'use client';
-import { useGetTodosQuery, usePostTodosMutation, useDeleteTodoMutation } from './../api/api';
+import { useGetTodosQuery, usePostTodosMutation, useDeleteTodoMutation, useChangeTodoMutation } from './../api/api';
 import { useState } from 'react';
 import styles from './page.module.css';
 
@@ -18,14 +18,21 @@ export default function Home() {
   const { data, error, isLoading } = useGetTodosQuery();
   const [postTodos] = usePostTodosMutation();
   const [deleteTodo] = useDeleteTodoMutation();
+  const [changeTodo] = useChangeTodoMutation();
 
 
-  const toggleTodo = (id: number) => {
-    setTodos((prev) =>
-      prev.map((t) =>
-        t.id === id ? { ...t, completed: !t.completed } : t
-      )
-    );
+  const toggleTodo = async (id: number) => {
+    const todo = data?.find((t) => t.id === id);
+    if (!todo) return;
+
+    try {
+      await changeTodo({
+        id,
+        completed: !todo.completed,
+      }).unwrap();
+    } catch (err) {
+      console.error('Ошибка при обновлении todo:', err);
+    }
   };
 
   const addTodo = async () => {
