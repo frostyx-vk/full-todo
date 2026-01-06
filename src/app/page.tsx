@@ -10,7 +10,6 @@ type Todo = {
 };
 
 export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
   const [input, setInput] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState('');
@@ -19,21 +18,6 @@ export default function Home() {
   const [postTodos] = usePostTodosMutation();
   const [deleteTodo] = useDeleteTodoMutation();
   const [changeTodo] = useChangeTodoMutation();
-
-
-  const toggleTodo = async (id: number) => {
-    const todo = data?.find((t) => t.id === id);
-    if (!todo) return;
-
-    try {
-      await changeTodo({
-        id,
-        completed: !todo.completed,
-      }).unwrap();
-    } catch (err) {
-      console.error('Ошибка при обновлении todo:', err);
-    }
-  };
 
   const addTodo = async () => {
     if (!input.trim()) return;
@@ -53,17 +37,38 @@ export default function Home() {
     }
   };
 
+  const updateTodo = async (
+    id: number,
+    changes: { text?: string; completed?: boolean }
+  ) => {
+    const todo = data?.find((t) => t.id === id);
+    if (!todo) return;
+
+    try {
+      await changeTodo({
+        id,
+        ...changes,
+      }).unwrap();
+    } catch (err) {
+      console.error('Ошибка при обновлении todo:', err);
+    }
+  };
+
+  const toggleTodo = (id: number) => {
+    const todo = data?.find((t) => t.id === id);
+    if (!todo) return;
+
+    updateTodo(id, { completed: !todo.completed });
+  };
+
   const startEdit = (todo: Todo) => {
     setEditingId(todo.id);
     setEditingText(todo.text);
   };
 
-  const saveEdit = (id: number) => {
-    setTodos((prev) =>
-      prev.map((t) =>
-        t.id === id ? { ...t, text: editingText } : t
-      )
-    );
+  const saveEdit = async (id: number) => {
+    await updateTodo(id, { text: editingText });
+
     setEditingId(null);
     setEditingText('');
   };
